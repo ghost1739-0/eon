@@ -39,12 +39,12 @@ const interactionCreateEvent = {
                     return;
                 }
                 if (interaction.customId === CustomIds.ticketPurchaseButton) {
-                    const products = interaction.client.products;
-                    if (products.size === 0) {
+                    const products = productStore.list();
+                    if (products.length === 0) {
                         await interaction.reply({ content: "Şu anda listelenen bir ürün bulunmamaktadır.", ephemeral: true });
                         return;
                     }
-                    await interaction.reply({ ...buildPurchaseSelectionPayload(products.toJSON()), ephemeral: true });
+                    await interaction.reply({ ...buildPurchaseSelectionPayload(products), ephemeral: true });
                     return;
                 }
                 if (interaction.customId === CustomIds.ticketSupportButton) {

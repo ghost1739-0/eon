@@ -17,6 +17,7 @@ const productAddCommand = {
         const price = interaction.options.getString("fiyat", true);
         try {
             const product = await productStore.add(name, price);
+            interaction.client.products.set(product.id, product);
             await interaction.reply({
                 content: `Ürün eklendi: **${product.name}** - **${product.price}**`,
                 ephemeral: true,

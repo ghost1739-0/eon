@@ -1,45 +1,40 @@
-import { Collection } from "discord.js";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { fileURLToPath } from "node:url";
-const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const dataDirectory = path.join(projectRoot, "data");
-const productsFilePath = path.join(dataDirectory, "products.json");
-function isProduct(value) {
+import { Collection } from "discord.js";
+import { getDatabase } from "./mongo.js";
+function normalizeName(name) {
+    return name.trim().toLowerCase();
+}
+function isProductDocument(value) {
     if (typeof value !== "object" || value === null) {
         return false;
     }
     const candidate = value;
-    return typeof candidate.id === "string" && typeof candidate.name === "string" && typeof candidate.price === "string";
+    return (typeof candidate._id === "string" &&
+        typeof candidate.name === "string" &&
+        typeof candidate.price === "string" &&
+        typeof candidate.nameNormalized === "string");
 }
-function normalizeName(name) {
-    return name.trim().toLowerCase();
+async function getProductCollection() {
+    const database = await getDatabase();
+    const collection = database.collection("products");
+    await collection.createIndex({ nameNormalized: 1 }, { unique: true });
+    return collection;
 }
 export class ProductStore {
     products = new Collection();
     async load() {
-        await mkdir(dataDirectory, { recursive: true });
-        let rawFile = "[]";
-        try {
-            rawFile = await readFile(productsFilePath, "utf8");
-        }
-        catch (error) {
-            const fileNotFound = typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
-            if (!fileNotFound) {
-                throw error;
-            }
-            await writeFile(productsFilePath, "[]\n", "utf8");
-        }
-        const parsed = JSON.parse(rawFile);
-        const items = Array.isArray(parsed) ? parsed : [];
+        const collection = await getProductCollection();
+        const items = await collection.find({}).toArray();
         this.products.clear();
         for (const item of items) {
-            if (isProduct(item)) {
-                this.products.set(item.id, item);
+            if (isProductDocument(item)) {
+                this.products.set(item._id, {
+                    id: item._id,
+                    name: item.name,
+                    price: item.price,
+                });
             }
         }
-        await this.save();
     }
     list() {
         return [...this.products.values()];
@@ -54,6 +49,7 @@ export class ProductStore {
     async add(name, price) {
         const productName = name.trim();
         const productPrice = price.trim();
+        const nameNormalized = normalizeName(productName);
         if (!productName || !productPrice) {
             throw new Error("Ürün adı ve fiyat bilgisi boş olamaz.");
         }
@@ -65,17 +61,24 @@ export class ProductStore {
             name: productName,
             price: productPrice,
         };
+        const collection = await getProductCollection();
+        await collection.insertOne({
+            _id: product.id,
+            name: product.name,
+            price: product.price,
+            nameNormalized,
+        });
         this.products.set(product.id, product);
-        await this.save();
         return product;
     }
     async removeById(id) {
+        const collection = await getProductCollection();
         const product = this.products.get(id);
         if (!product) {
             return undefined;
         }
+        await collection.deleteOne({ _id: id });
         this.products.delete(id);
-        await this.save();
         return product;
     }
     toSelectOptions() {
@@ -84,10 +87,6 @@ export class ProductStore {
             value: product.id,
             description: product.price.slice(0, 100),
         }));
-    }
-    async save() {
-        await mkdir(dataDirectory, { recursive: true });
-        await writeFile(productsFilePath, `${JSON.stringify(this.list(), null, 2)}\n`, "utf8");
     }
 }
 export const productStore = new ProductStore();

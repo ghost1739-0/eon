@@ -18,6 +18,7 @@ function readBooleanEnv(name, defaultValue) {
 }
 function createEnvironment() {
     const guildId = readOptionalEnv("DISCORD_GUILD_ID");
+    const mongoDatabaseName = readOptionalEnv("MONGODB_DB_NAME") ?? "eonbypass";
     const managementRoleId = readOptionalEnv("MANAGEMENT_ROLE_ID");
     const feedbackLogChannelId = readOptionalEnv("FEEDBACK_LOG_CHANNEL_ID");
     const ticketLogChannelId = readOptionalEnv("TICKET_LOG_CHANNEL_ID");
@@ -25,6 +26,8 @@ function createEnvironment() {
     const baseEnvironment = {
         token: readRequiredEnv("DISCORD_TOKEN"),
         clientId: readRequiredEnv("DISCORD_CLIENT_ID"),
+        mongoUri: readRequiredEnv("MONGODB_URI"),
+        mongoDatabaseName,
         ...(guildId ? { guildId } : {}),
         ...(managementRoleId ? { managementRoleId } : {}),
         ...(feedbackLogChannelId ? { feedbackLogChannelId } : {}),

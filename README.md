@@ -10,6 +10,7 @@ TypeScript, Node.js ve discord.js v14 ile hazırlanmış, genişletilebilir bir 
 - Global ve test sunucusu için deploy scripti
 - Type-safe yapı ve strict TypeScript ayarları
 - Dinamik ürün deposu ve ticket/feedback akışları
+- MongoDB destekli ürün deposu
 
 ## Kurulum
 
@@ -18,6 +19,13 @@ npm install
 ```
 
 `.env.example` dosyasını kopyalayıp `.env` oluşturun ve değerleri doldurun.
+
+MongoDB kullanımı için ayrıca şu değişkenleri ekleyin:
+
+- `MONGODB_URI`
+- `MONGODB_DB_NAME`
+
+`MONGODB_DB_NAME` verilmezse varsayılan olarak `eonbypass` kullanılır.
 
 ## Geliştirme
 
@@ -60,6 +68,8 @@ Gerekli ek ortam değişkenleri:
 - `FEEDBACK_LOG_CHANNEL_ID`
 - `TICKET_LOG_CHANNEL_ID`
 - `TICKET_CATEGORY_ID`
+- `MONGODB_URI`
+- `MONGODB_DB_NAME` (opsiyonel)
 
 ## Klasör Yapısı
 

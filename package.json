@@ -18,7 +18,8 @@
     "discord-api-types": "^0.38.19",
     "discord.js": "^14.19.3",
     "dotenv": "^16.4.7",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongodb": "^7.2.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

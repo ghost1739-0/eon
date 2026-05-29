@@ -1,0 +1,27 @@
+{
+  "name": "eonbypass-discord-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Extensible Discord bot boilerplate built with TypeScript and discord.js v14.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "deploy": "tsx src/deploy-commands.ts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^2.6.0",
+    "discord-api-types": "^0.38.19",
+    "discord.js": "^14.19.3",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
